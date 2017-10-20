@@ -12,10 +12,15 @@ log/morgan/
 /log/morgan/*
 !/log/morgan/.gitkeep
 
-download/
-!/download/
-/download/*
-!/download/.gitkeep
+download/114/
+!/download/114/
+/download/114/*
+!/download/114/.gitkeep
+
+download/jd/
+!/download/jd/
+/download/jd/*
+!/download/jd/.gitkeep
 
 npm-debug.log*
 yarn-debug.log*

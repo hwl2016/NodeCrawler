@@ -1,6 +1,4 @@
-// 依赖 PhantomJS & CasperJS
-// var logger = require('./logger').logger;
-
+// 初始化casper
 var casper = require('casper').create({
 	verbose: true,
     logLevel: 'error',
@@ -15,6 +13,7 @@ var casper = require('casper').create({
 		// 'cookie':'PHPSESSID=me7a4utrj7mjb9p2nt57r6od01; smidV2=20170801202524ef35e44e1799b7ab0e370238d0b5ebf119368191ac20b7830; _dys_lastPageCode=page_studio_normal,page_studio_normal; acf_did=F331F62A26872BDD257E9E8035A3AE93; Hm_lvt_e99aee90ec1b2106afe7ec3b199020a7=1500345830,1500432187,1500950328,1501040999; Hm_lpvt_e99aee90ec1b2106afe7ec3b199020a7=1501593203; _dys_refer_action_code=show_title_rank',
 		// 'host':'www.douyu.com',
 		// 'upgradeInsecure-Requests':1,
+        'loadImages':  false,
 		'userAgent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36'
 	},
     // 浏览器窗口大小
@@ -69,8 +68,6 @@ casper.start(url, function() {
     }else {
     	this.echo('failed: img#spec-img not exists');
     }
-
-
 });
 
 casper.then(function() {

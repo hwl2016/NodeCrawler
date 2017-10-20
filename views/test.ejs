@@ -19,8 +19,8 @@
 					<button id="btn_1" class="btn btn-primary">MD5</button>
 					<button id="btn_2" class="btn btn-primary">获取代理服务器信息</button>
 					<button id="btn_3" class="btn btn-primary">casper测试代理服务器</button>
-					<!-- <button id="btn_4" class="btn btn-primary"></button>
-					<button id="btn_5" class="btn btn-primary"></button> -->
+					<button id="btn_4" class="btn btn-primary">京东识别图形验证码</button>
+					<button id="btn_5" class="btn btn-primary">测试短信验证码</button>
 				</div>
 			</div>
 		</div>
@@ -53,20 +53,53 @@ $(function() {
 		})
 	})
 
-	$('#btn_3').click(function() {
-		var target = 'http://xlyqq.xilexuan.com';
-		$.ajax({
-			url: '/test/proxy/server?t=' + (+new Date()),
-			type: 'post',
-			data: {
-				target: target
-			},
-			success: function(d) {
-				console.log(d);
-			}
-		})
-	})
+    $('#btn_3').click(function() {
+        var target = 'http://xlyqq.xilexuan.com';
+        $.ajax({
+            url: '/test/proxy/server?t=' + (+new Date()),
+            type: 'post',
+            data: {
+                target: target
+            },
+            success: function(d) {
+                console.log(d);
+            }
+        })
+    })
 
+    $('#btn_4').click(function() {
+        // codeType: 验证码类型 (1001: 数字+字母类型， 1002: 纯英文类型，1003: 纯数字类型，1004:计算题类型，2xxx: 定制类型）
+		// length: 验证码长度
+		// appkey: 京东万象的appkey
+
+        $.ajax({
+            url: 'https://way.jd.com/pengyun/seemmark?codeType=1001&length=4&appkey=73bd99c79e4c38168cf1a7e0bcfddbbc',
+            type: 'post',
+            data: {
+                body: yzm  //Image类型
+            },
+            success: function(d) {
+                console.log(d);
+                if(d.code == '10000') {
+                    console.log('验证码是：' + d.result.result);
+				}
+            }
+        })
+    })
+
+    $('#btn_5').click(function() {
+        var phone = '17080312246';
+        $.ajax({
+            url: 'http://xlyqq.xilexuan.com/scriptmanager/cardPoolAction.do?method=getSms&phone=' + phone,
+            type: 'GET',
+            success: function(d) {
+                console.log(d);
+            },
+			error: function() {
+                console.log('error');
+			}
+        })
+    })
 })
 </script>
 </body>

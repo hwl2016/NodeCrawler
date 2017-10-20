@@ -22,6 +22,11 @@ download/jd/
 /download/jd/*
 !/download/jd/.gitkeep
 
+download/yzmImg/
+!/download/yzmImg/
+/download/yzmImg/*
+!/download/yzmImg/.gitkeep
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

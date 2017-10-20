@@ -28,7 +28,7 @@ var casper = require('casper').create({
     ]
 });
 
-// phantom.outputEncoding="gbk";
+phantom.outputEncoding="gb2312";
 
 var url = casper.cli.get(0);    // 通过命令行来接受参数  抓取的页面url
 var username = casper.cli.get(1);    // 通过命令行来接受参数  登陆用户名
@@ -43,9 +43,6 @@ var info = yyInfo.split(',');
 var jzk = info[0].split(':')[1];
 var ybk = info[1].split(':')[1];
 var bxlx = parseInt(info[2].split(':')[1]);
-
-var cnt = 1;    // 轮询手机验证码初始次数
-var timer = null;   // 轮询定时器
 
 // 打开页面 并登陆
 casper.start(url, function() {
@@ -83,11 +80,6 @@ casper.then(function() {
                             if(this.exists('.ksorder_kyy')) {
                                 var kyy = this.evaluate(getAppointmentBtn, appointmentTime);    // 选择预约按钮
                                 if(kyy) {   // 有可预约按钮
-
-                                    // var ref = this.evaluate(function() {
-                                    //     return window.location.href;
-                                    // });
-
                                     var ref = this.getCurrentUrl(); // 获取当前url
 
                                     // 以下方式（主动发ajax  拼接链接跳转）必须设置referer的请求头  挂号平台做了防止黄牛的操作
@@ -103,11 +95,19 @@ casper.then(function() {
                                             // 点击发送验证码
                                             this.mouse.click('#btnSendCodeOrder');
                                             this.waitForAlert(function(response) {    // 等待弹框出现  casperjs会自动将alert弹框关闭
-                                                this.wait(30000);   // casperjs的wait只能阻塞下一个then方法 而不能阻塞同一方法中的下面代码
-
+                                                // this.wait(30000);   // casperjs的wait只能阻塞下一个then方法 而不能阻塞同一方法中的下面代码
                                             }).then(function() {
                                                 // var yzm = this.evaluate(lunxun, username, cnt, timer);
-                                                var yzm = this.evaluate(getYZM, username);
+
+                                                var yzm = '';
+
+                                                while(true) {
+                                                    sleep(1000);    // 每隔1秒请求一次验证码
+                                                    yzm = this.evaluate(getYZM, username);
+                                                    if(yzm) {
+                                                        break;
+                                                    }
+                                                }
 
                                                 // 填写手机验证码等相关信息
                                                 if(yzm) {
@@ -121,13 +121,14 @@ casper.then(function() {
                                                     // 点击预约
                                                     this.mouse.click('#Rese_db_qryy_btn');
                                                     this.wait(200);
+
                                                     this.then(function() {
                                                         this.echo('success|');
-                                                        this.capture('download/114/' + (+new Date()) + '.png');
                                                     })
                                                 }else {
                                                     this.echo('failed|手机验证码获取失败|');
                                                 }
+                                                this.capture('download/114/' + (+new Date()) + '.png');
                                             })
                                         })
                                     }else {
@@ -196,6 +197,18 @@ casper.then(function() {
 
 casper.run();
 
+// 睡眠方法
+function sleep(numberMillis) {
+    var now = new Date();
+    var exitTime = now.getTime() + numberMillis;
+    while (true) {
+        now = new Date();
+        if (now.getTime() > exitTime) {
+            break;
+        }
+    }
+}
+
 // 获取跳转链接
 function getJumpURL(selector, name) {
     var url = null;
@@ -203,7 +216,7 @@ function getJumpURL(selector, name) {
     if(name) {
         for(var i = 0; i < links.length; i ++ ) {
             var link = links[i];
-            if(link.innerHTML.trim() == name) {
+            if(link.innerHTML.trim().indexOf(name) != -1) {
                 url = window.location.origin + link.getAttribute('href');
                 break;
             }
@@ -246,7 +259,7 @@ function getPartDutyUrl(time) {
             res = typeof res == 'string' ? JSON.parse(res) : res;   // 返回的结果是字符串
             if(res.code == 200) {
                 var r = res.data[0];    // 默认选第一个医生
-                href = window.location.origin + '/order/confirm/' + r.hospitalId + 
+                href = window.location.origin + '/order/confirm/' + r.hospitalId +
                     '-' + r.departmentId + '-' + r.doctorId + '-' + r.dutySourceId + '.htm';
             }else {
                 href = 'ajax success, but 没有医生的数据';
@@ -280,26 +293,6 @@ function getAppointmentBtn(time) {
         }
     })
     return btn;
-}
-
-// 轮询验证码
-function lunxun(phone, cnt, timer, cb) {
-    var yzm = getYZM(phone);
-    if(yzm) {
-        if(typeof cb == 'function') {
-            cb();
-        }
-        cnt = 0;
-        timer = null;
-    }else if(cnt < 30) {
-        cnt ++;
-        timer = setTimeout(function() {
-            lunxun(phone, cnt, timer, cb);
-        }, 1000);
-    }else {
-        cnt = 0;
-        timer = null;
-    }
 }
 
 // 获取手机验证码

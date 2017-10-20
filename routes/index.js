@@ -12,8 +12,8 @@ router.get('/test', function(req, res, next) {
 });
 
 // 京东抓图片 Page
-router.get('/jdImg', function(req, res, next) {
-	res.render('jdImg', { title: '京东抓图' });
+router.get('/jd', function(req, res, next) {
+	res.render('jd', { title: '京东抓图' });
 });
 
 // 114 预约挂号 Page

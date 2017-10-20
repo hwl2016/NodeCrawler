@@ -27,6 +27,7 @@ router.post('/guahao', function(req, res, next) {
 
 	var yyInfo = 'jzk:' + obj.jzk + ',ybk:' + obj.ybk + ',bxlx:' + obj.bxlx;
 
+	// 设置代理服务器
 	var phantomParams = '';
 	var proxyURL = 'http://http-webapi.zhimaruanjian.com/getip?num=1&type=2&pro=&city=0&yys=0&port=1&time=1';
 	var d = syncRequest('GET', proxyURL);	// 同步获取代理ip和端口
@@ -46,7 +47,7 @@ router.post('/guahao', function(req, res, next) {
 	child_process.exec(cmd, function(err, stdout, stderr) {
 		logger.info('================================');
 		logger.info(`代理服务器信息:::::::: ${JSON.stringify(b)}`);
-		logger.info(`执行命令：${cmd}`);
+		logger.info(`114预约挂号抢票=====执行命令：${cmd}`);
 
 		if(err || stderr) {
 			logger.error('ERROR >>>>>>>>>>> node execute err: ' + err);

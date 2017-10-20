@@ -19,22 +19,12 @@ const imgDir = 'G:\\Nodejs\\NodeCrawler\\download\\jd\\';
 
 // 抓取图片 一次抓取一张
 router.post('/img', function(req, res, next) {
-
 	var url = req.body.target;
-
-	// if(url.indexOf('http') != 0) {
-	// 	res.json({
-	// 		code: 500,
-	// 		msg: 'url不合法'
-	// 	});
-	// 	return;
-	// }
-
 	var cmd = `casperjs casper/jdImg.js ${url}`;
 
 	child_process.exec(cmd, function(err, stdout, stderr) {
 		logger.info('================================');
-		logger.info(`执行命令：${cmd}`);
+		logger.info(`京东抓取图片=====执行命令：${cmd}`);
 
 		if(err) {
 			logger.error('err: ' + stderr);
@@ -96,34 +86,78 @@ router.post('/img', function(req, res, next) {
 			});
 		}
 	});
-
-	// res.json({
-	// 	code: 200,
-	// 	msg: 'success'
-	// });
-
 });
+
+// 京东抢券
+router.post('/tickets', function(req, res, next) {
+    var url = req.body.crawlerUrl;
+    var username = req.body.username;
+    var password = req.body.password;
+
+    // 设置代理服务器
+    var phantomParams = '';
+    var proxyURL = 'http://http-webapi.zhimaruanjian.com/getip?num=1&type=2&pro=&city=0&yys=0&port=1&time=1';
+    var d = syncRequest('GET', proxyURL);	// 同步获取代理ip和端口
+    var b = null;
+
+    if(d.statusCode == 200) {
+        b = JSON.parse(d.body);
+        if(b.data && b.data.length > 0) {
+            var ip = b.data[0].ip;
+            var port = b.data[0].port;
+            var phantomParams = `--proxy=${ip}:${port} --proxy-type=http`;
+        }
+    }
+
+    var cmd = `casperjs ${phantomParams} casper/jdTickets.js ${url} ${username} ${password}`;
+
+    child_process.exec(cmd, function(err, stdout, stderr) {
+        logger.info('================================');
+        logger.info(`代理服务器信息:::::::: ${JSON.stringify(b)}`);
+        logger.info(`抢京东优惠券=====执行命令：${cmd}`);
+
+        if(err || stderr) {
+            logger.error('ERROR >>>>>>>>>>> node execute err: ' + err);
+            logger.error('ERROR >>>>>>>>>>> casper execute stderr: ' + stderr);
+            return
+        }
+        if(stdout) {
+            var r = stdout.split('|');
+            var response = null;
+
+            if(r[0] == 'success') {
+                logger.info(`casper execute stdout: ${stdout}`);
+				// 获取验证码路径
+                var yzm = r[1].slice(4);
+
+                response = {
+                    code: 200,
+                    msg: 'success',
+					data: {
+                    	yzm: yzm
+					}
+                };
+            }else {
+                logger.error(`ERROR >>>>>>>>>>> ${stdout}`);
+                response = {
+                    code: 500,
+                    msg: `${r[1]}`
+                };
+            }
+            res.json(response);
+        }else {
+            logger.error(`ERROR >>>>>>>>>>>  500!!!  casperjs stdout为空`);
+            res.json({
+                code: 501,
+                msg: 'casperjs的stdout为空'
+            });
+        }
+    });
+
+})
 
 function md5(text) {
 	return crypto.createHash('md5').update(text).digest('hex');
 };
-
-// function createDateDir() {
-// 	var logDirectory = imgDir + '/' + createDate();
-// 	if(!fs.existsSync(logDirectory)) {
-// 		fs.mkdirSync(logDirectory)
-// 	}
-// 	return logDirectory + '\\';
-// }
-
-// function createDate() {
-// 	var d = new Date();
-// 	var yyyy = d.getFullYear();
-// 	var MM = d.getMonth() + 1;
-// 	var dd = d.getDate();
-// 	MM = MM.toString().length == 1 ? '0' + MM : MM;
-// 	dd = dd.toString().length == 1 ? '0' + dd : dd;
-// 	return yyyy + MM + dd;
-// }
 
 module.exports = router;

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimum-scale=1,user-scalable=no">
+	<title><%= title %></title>
+	<link rel='stylesheet' href='/bootstrap/css/bootstrap.min.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_tool.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_time.css' />
+	<link rel='stylesheet' href='/stylesheets/style.css' />
+	<style>
+		.show-yzm {
+			background: #f5f5f5;
+			margin-top: 20px;
+			padding: 0 5px;
+			height:42px;
+			line-height: 42px;
+			box-shadow: 0 0 5px #ddd;
+			border-radius: 4px;
+		}
+	</style>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<h4>京东相关操作</h4>
+			<div>
+				<a href="javascript:;" id="btn_1" class="btn btn-success">抓图</a>
+				<a href="javascript:;" id="btn_2" class="btn btn-success">抢优惠券</a>
+			</div>
+
+			<div class="show-yzm">
+				领券的验证码：<img src="" alt="" id="yzm" width="107" height="42">
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/javascripts/jQuery-2.1.4.min.js"></script>
+<script>
+	var target = [
+		'https://union-click.jd.com/jdc?d=GpEvtJ',
+		'https://item.jd.com/15234043476.html',
+		'https://item.jd.com/10424718491.html',
+		'https://item.jd.com/12610152511.html',
+		'https://www.baidu.com',
+
+        'https://union-click.jd.com/jdc?d=l6TIzv',
+        'https://union-click.jd.com/jdc?d=ctUrJU',
+        'https://union-click.jd.com/jdc?d=TIUH4r',
+        'https://union-click.jd.com/jdc?d=QfyIT7'
+	];
+
+    $('#btn_1').click(function() {
+        $.ajax({
+            // url: 'http://118.145.5.140:3000/img?t=' + (+new Date()),
+            url: '/jd/img?t=' + (+new Date()),
+            type: 'POST',
+            data: {
+                // target: 'http://www.baidu.com'
+                target: 'https://union-click.jd.com/jdc?d=GpEvtJ'
+                // target: 'https://union-click.jd.com/jdc?d=0inybn'
+                // target: 'https://union-click.jd.com/jdc?d=zd2gLb'
+                // target: 'https://union-click.jd.com/jdc?d=BHIhjk'
+            },
+            success: function(data) {
+                console.log(data);
+            },
+            error: function() {
+                console.log('error')
+            }
+        })
+
+    });
+
+    $('#btn_2').click(function() {
+        var phones = ['17085100969', '17085100971', '17085100972'];
+		var phone = phones[1];
+		var password = 'w666666';
+
+		// http://dwz.cn/6GpRax
+
+        $.ajax({
+            url: '/jd/tickets?t=' + (+new Date()),
+            type: 'POST',
+            data: {
+                username: phone,
+				password: password,
+                crawlerUrl: 'http://t.cn/ROdFlbV'
+            },
+            success: function(res) {
+                console.log(res);
+				if(res.code == 200) {
+				    $('#yzm').attr('src', res.data.yzm)
+				}
+            },
+            error: function() {
+                console.log('error')
+            }
+        })
+
+    });
+
+</script>
+</body>
+</html>

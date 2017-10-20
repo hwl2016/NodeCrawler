@@ -39,7 +39,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/download', express.static(path.join(__dirname, 'download')));
 
-// CORS, ¿çÓò×ÊÔ´¹²Ïí
+// CORS, è·¨åŸŸ
 app.all( '*', function ( req, res, next ) {
   res.set( {
     'Access-Control-Allow-Origin': '*',

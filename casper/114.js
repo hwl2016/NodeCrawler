@@ -5,9 +5,9 @@
 var casper = require('casper').create({
 	verbose: true,
     logLevel: 'error',
-    waitTimeout: 15000,
+    waitTimeout: 20000,
 	pageSettings: {
-        'loadImages':  false,
+        // 'loadImages':  false,
 		'userAgent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36'
 	},
     // 浏览器窗口大小
@@ -84,20 +84,21 @@ casper.then(function() {
 
                                     // 以下方式（主动发ajax  拼接链接跳转）必须设置referer的请求头  挂号平台做了防止黄牛的操作
                                     var jumpToDoctorUrl = this.evaluate(getPartDutyUrl, appointmentTime);
-                                    if(jumpToDoctorUrl.indexOf('http') != -1) {
+
+                                    /*if(jumpToDoctorUrl.indexOf('http') != -1) {
                                         // 进入预约医生的页面
                                         this.open(jumpToDoctorUrl, {
                                             method: 'get',
                                             headers: {
+                                                'Upgrade-Insecure-Requests': 1,
                                                 'Referer': ref    // 必须设置referer的请求头  很重要！！！
                                             }
                                         }).then(function() {
+
                                             // 点击发送验证码
                                             this.mouse.click('#btnSendCodeOrder');
+
                                             this.waitForAlert(function(response) {    // 等待弹框出现  casperjs会自动将alert弹框关闭
-                                                // this.wait(30000);   // casperjs的wait只能阻塞下一个then方法 而不能阻塞同一方法中的下面代码
-                                            }).then(function() {
-                                                // var yzm = this.evaluate(lunxun, username, cnt, timer);
 
                                                 var yzm = '';
 
@@ -124,57 +125,35 @@ casper.then(function() {
 
                                                     this.then(function() {
                                                         this.echo('success|');
+                                                        this.capture('download/114/' + (+new Date()) + '.png');
                                                     })
                                                 }else {
                                                     this.echo('failed|手机验证码获取失败|');
                                                 }
-                                                this.capture('download/114/' + (+new Date()) + '.png');
+
                                             })
                                         })
                                     }else {
                                         this.echo('failed|' + jumpToDoctorUrl + '|');
-                                    }
+                                    }*/
 
-                                    // 可能没有 ksorder_dr1_syhy 
-                                    // this.mouse.click('.ksorder_kyy.ksorder_bgcol');
-                                    // this.waitForSelector('.ksorder_dr1_syhy', function(){   // 等待"预约挂号"按钮的出现 ksorder_dr1_syhy
-                                        // var doctorURL = this.getElementAttribute('.ksorder_dr1_p2 a', 'href');
-                                        // doctorURL = this.evaluate(enterDoctor, doctorURL);
-                                        // doctorURL = 'http://www.bjguahao.gov.cn/order/confirm/139-200001523-200353632-48086956.htm';
 
-                                        // this.open(doctorURL, {
-                                        //     method: 'get',
-                                        //     headers: {
-                                        //         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                                        //         'Accept-Encoding':'gzip, deflate, sdch',
-                                        //         'Accept-Language':'zh-CN,zh;q=0.8',
-                                        //         'Connection':'keep-alive',
-                                        //         'Cookie':'SESSION_COOKIE=3cab1829cea361dbceb97f7e; __guid=209865491.3396663288048206300.1508144439143.2546; JSESSIONID=5505B01EF98C7AF03C7C4D1A1873D51D; monitor_count=277; Hm_lvt_bc7eaca5ef5a22b54dd6ca44a23988fa=1508144442; Hm_lpvt_bc7eaca5ef5a22b54dd6ca44a23988fa=1508304111'
-                                        //         'Host':'www.bjguahao.gov.cn',
-                                        //         'Referer':'http://www.bjguahao.gov.cn/dpt/appoint/139-200001523.htm',
-                                        //         'Upgrade-Insecure-Requests':1,
-                                        //         // 'Referer': ref    // 必须设置referer的请求头  很重要！！！
-                                        //     }
-                                        // }).then(function() {
-                                        //     // 点击发送验证码
-                                        //     // this.mouse.click('#btnSendCodeOrder');
 
-                                        //     // 填写手机验证码等相关信息
-                                        //     this.evaluate(function() {
-                                        //         $('#Rese_db_dl_jzk').val('aaa'); // 填写就诊卡
-                                        //         $('#Rese_db_dl_ybk').val('bbb'); // 填写医保卡
-                                        //         $('.Rese_db_dl_select option').eq(1).get(0).selected = true;    //  选择报销类型
-                                        //         $('#Rese_db_dl_dxyzid').val('123456'); // 填写手机验证码
-
-                                        //     });
-
-                                        //     // 点击预约
-                                        //     this.mouse.click('#Rese_db_qryy_btn');
-
-                                        //     this.capture('haha' + Math.random() + '.png');
-                                        //     this.echo('success|');
-                                        // })
-                                    // })
+                                    // 可能没有 ksorder_dr1_syhy
+                                    this.waitForSelector('.ksorder_dr1_syhy', function(){   // 等待"预约挂号"按钮的出现 ksorder_dr1_syhy
+                                        var jUrl = this.evaluate(function() {
+                                            var link = $('a.ksorder_dr1_syhy').eq(0);
+                                            var hh = link.attr('href');
+                                            link.click();
+                                            return hh;
+                                        })
+                                        this.waitForSelector('#btnSendCodeOrder', function() {
+                                            // 点击发送验证码
+                                            // this.mouse.click('#btnSendCodeOrder');
+                                            this.echo('success|href:::' + jUrl + '|');
+                                            this.capture('download/114/' + (+new Date()) + '.png');
+                                        });
+                                    })
                                 }else {
                                     this.echo('failed|该时间段不能预约或者约满，请选择其他时间预约|');
                                 }

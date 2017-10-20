@@ -33,14 +33,14 @@ router.post('/guahao', function(req, res, next) {
 	var d = syncRequest('GET', proxyURL);	// 同步获取代理ip和端口
 	var b = null;
 
-	if(d.statusCode == 200) {
-		b = JSON.parse(d.body);
-		if(b.data && b.data.length > 0) {
-			var ip = b.data[0].ip;
-			var port = b.data[0].port;
-			var phantomParams = `--proxy=${ip}:${port} --proxy-type=http`;
-		}
-	}
+	// if(d.statusCode == 200) {
+	// 	b = JSON.parse(d.body);
+	// 	if(b.data && b.data.length > 0) {
+	// 		var ip = b.data[0].ip;
+	// 		var port = b.data[0].port;
+	// 		phantomParams = `--proxy=${ip}:${port} --proxy-type=http`;
+	// 	}
+	// }
 
 	var cmd = `casperjs ${phantomParams} casper/114.js ${url} ${username} ${password} ${hospitalName} ${department} ${appointmentTime} ${yyInfo}`;
 
@@ -52,6 +52,10 @@ router.post('/guahao', function(req, res, next) {
 		if(err || stderr) {
 			logger.error('ERROR >>>>>>>>>>> node execute err: ' + err);
 			logger.error('ERROR >>>>>>>>>>> casper execute stderr: ' + stderr);
+            res.json({
+                code: 500,
+                msg: 'node or casper 执行报错！'
+            });
 			return
 		}
 		if(stdout) {

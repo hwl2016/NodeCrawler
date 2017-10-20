@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimum-scale=1,user-scalable=no">
+	<title><%= title %></title>
+	<link rel='stylesheet' href='/bootstrap/css/bootstrap.min.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_tool.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_time.css' />
+	<link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<h4 class="text-center title">114预约挂号抢票系统</h4>
+				<form id="data" class="form-horizontal col-sm-offset-3">
+					<div class="form-group">
+						<label for="username" class="col-sm-2 control-label text-right">手机号</label>
+						<div class="col-sm-5">
+							<input type="text" id="username" class="form-control" placeholder="必填">
+						</div>
+						<div class="col-sm-2 control-label icon">*</div>
+					</div>
+					<div class="form-group">
+						<label for="password" class="col-sm-2 control-label text-right">密码</label>
+						<div class="col-sm-5">
+							<input type="password" id="password" class="form-control" placeholder="必填">
+						</div>
+						<div class="col-sm-1 control-label icon">*</div>
+					</div>
+					<div class="form-group">
+						<label for="hospitalName" class="col-sm-2 control-label text-right">医院</label>
+						<div class="col-sm-5">
+							<input type="text" id="hospitalName" class="form-control" placeholder="必填">
+						</div>
+						<div class="col-sm-1 control-label icon">*</div>
+					</div>
+					<div class="form-group">
+						<label for="department" class="col-sm-2 control-label text-right">科室</label>
+						<div class="col-sm-5">
+							<input type="text" id="department" class="form-control" placeholder="必填">
+						</div>
+						<div class="col-sm-1 control-label icon">*</div>
+					</div>
+					<div class="form-group">
+						<label for="appointmentTime_1" class="col-sm-2 control-label text-right">预约时间</label>
+						<div class="col-sm-5">
+							<input type="text" id="appointmentTime_1" class="form-control" placeholder="请选择日期">
+						</div>
+						<div class="col-sm-1 control-label icon">*</div>
+					</div>
+					<!-- <div class="form-group">
+						<label for="appointmentTime_2" class="col-sm-2 control-label text-right">时间段</label>
+						<div class="col-sm-5">
+							<select id="appointmentTime_2" class="form-control">
+								<option value="1" selected>上午</option>
+								<option value="2">下午</option>
+								<option value="3">晚上</option>
+							</select>
+						</div>
+						<div class="col-sm-1 control-label icon">*</div>
+					</div> -->
+
+					<div class="form-group">
+						<label for="jzk" class="col-sm-2 control-label text-right">就诊卡</label>
+						<div class="col-sm-5">
+							<input type="text" id="jzk" class="form-control" placeholder="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="ybk" class="col-sm-2 control-label text-right">医保卡</label>
+						<div class="col-sm-5">
+							<input type="text" id="ybk" class="form-control" placeholder="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="bxlx" class="col-sm-2 control-label text-right">报销类型</label>
+						<div class="col-sm-5">
+							<select id="bxlx" class="form-control">
+								<option value="0">==请选择==</option>
+								<option value="1">医疗保险</option>
+								<option value="2">商业保险</option>
+								<option value="3">公费医疗</option>
+								<option value="4">新农合</option>
+								<option value="5">异地医保</option>
+								<option value="6">红本医疗</option>
+								<option value="7">工伤</option>
+								<option value="8">一老一小</option>
+								<option value="9">超转</option>
+								<option value="10">自费</option>
+								<option value="11">生育险</option>
+								<option value="12">其他</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="" class="col-sm-2 control-label text-right"></label>
+						<div class="col-sm-5">
+							<button id="btn" type="button" class="btn btn-success">预约挂号</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+<script src="/javascripts/jQuery-2.1.4.min.js"></script>
+<script src="/javascripts/tool.js"></script>
+<script src="/javascripts/tool_time.js"></script>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script>
+$(function() {
+	var date = new Date();
+    var currYear = date.getFullYear();
+    var opt = {};
+    var $startTime = $("#appointmentTime_1");
+    opt.datetime = {
+    	preset: 'date'
+    };
+    opt._default = {
+		theme: 'android-ics light', // 皮肤样式
+		display: 'modal', // 显示方式
+		mode: 'scroller', // 日期选择模式
+		dateFormat: 'yyyy-mm-dd',
+		lang: 'zh',
+		minDate: date, // 最小日期
+		startYear: currYear - 1, // 开始年份
+		ampmText: '时段',
+		timeFormat: 'A',
+        timeWheels: 'A'
+    };
+    var optDateTime = $.extend(opt['datetime'], opt['_default']); // 将自定义的属性放进去
+    $startTime.mobiscroll(optDateTime).datetime(optDateTime);
+
+	$('#btn').click(function() {
+		var username = $('#username').val();
+		var password = $('#password').val();
+		var hospitalName = $('#hospitalName').val();
+		var department = $('#department').val();
+		var yyTime = $('#appointmentTime_1').val();
+
+		// if(!username) {
+		// 	toolKit.toast('请输入手机号');
+		// 	return false;
+		// }
+		// if(!password) {
+		// 	toolKit.toast('请输入登录密码');
+		// 	return false;
+		// }
+		// if(!hospitalName) {
+		// 	toolKit.toast('请输入你要预约的医院');
+		// 	return false;
+		// }
+		// if(!department) {
+		// 	toolKit.toast('请输入你要预约的科室');
+		// 	return false;
+		// }
+		// if(!at) {
+		// 	toolKit.toast('请输入预约时间');
+		// 	return false;
+		// }
+
+		// 预约时间 格式 x-yyyy-mm-dd  x:代表上午（1）、下午（2）、晚上（3）， yyyy:年  mm:月 dd：日
+		var at = yyTime.split(' ');
+		var prefix = at[1] == '上午' ? 1 : ( at[1] == '下午' ? 2 : 3 );
+		var appointmentTime = prefix + '_' + at[0];
+
+		var jzk = $('#jzk').val() || '';
+		var ybk = $('#ybk').val() || '';
+		var bxlx = $('#bxlx').val() || '0';
+
+		var data = {
+			username: username || '17080312246',
+			password: password || 'xunbao123',
+			hospitalName: hospitalName || '北京燕化医院',
+			department: department || '儿科',
+			appointmentTime: yyTime ? appointmentTime : '1_2017-10-24',
+			jzk: jzk,
+			ybk: ybk,
+			bxlx: bxlx
+		}
+
+		console.log(data);
+
+		// return false;
+
+		$.ajax({
+			// url: 'http://10.64.78.86:3000/guahao?t=' + (+new Date()),
+			url: '/fun/guahao?t=' + (+new Date()),
+			type: 'post',
+			data: data,
+			success: function(data) {
+				if(data.code == 200) {
+					toolKit.toastOK('预约成功！', function() {
+
+					});
+				}else {
+					toolKit.toast(data.msg)
+				}
+			},
+			error: function() {
+				console.log('error');
+				toolKit.toast('预约失败，请稍后重试！')
+			}
+		})
+	});
+
+	
+})
+</script>
+</body>
+</html>

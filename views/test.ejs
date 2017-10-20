@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimum-scale=1,user-scalable=no">
+	<title><%= title %></title>
+	<link rel='stylesheet' href='/bootstrap/css/bootstrap.min.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_tool.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_time.css' />
+	<link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-12">
+				<h4 class="text-center title">测试页面</h4>
+				<div class="text-center">
+					<button id="btn_1" class="btn btn-primary">MD5</button>
+					<button id="btn_2" class="btn btn-primary">获取代理服务器信息</button>
+					<button id="btn_3" class="btn btn-primary">casper测试代理服务器</button>
+					<!-- <button id="btn_4" class="btn btn-primary"></button>
+					<button id="btn_5" class="btn btn-primary"></button> -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script src="/javascripts/jQuery-2.1.4.min.js"></script>
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+<script>
+$(function() {
+	$('#btn_1').click(function() {
+		$.ajax({
+			url: '/test/md5?t=' + (+new Date()),
+			type: 'post',
+			success: function(data) {
+				console.log(data);
+			},
+			error: function() {
+				console.log('error')
+			}
+		})
+	});
+
+	$('#btn_2').click(function() {
+		$.ajax({
+			url: '/test/proxy/info?t=' + (+new Date()),
+			type: 'POST',
+			success: function(d) {
+				console.log(d);
+			}
+		})
+	})
+
+	$('#btn_3').click(function() {
+		var target = 'http://xlyqq.xilexuan.com';
+		$.ajax({
+			url: '/test/proxy/server?t=' + (+new Date()),
+			type: 'post',
+			data: {
+				target: target
+			},
+			success: function(d) {
+				console.log(d);
+			}
+		})
+	})
+
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,minimum-scale=1,user-scalable=no">
+	<title><%= title %></title>
+	<link rel='stylesheet' href='/bootstrap/css/bootstrap.min.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_tool.css' />
+	<link rel='stylesheet' href='/stylesheets/mobile_time.css' />
+	<link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-xs-12">
+			<h4>京东图片抓取</h4>
+			<div class="text-center">
+				<button id="btn" class="btn btn-success">start</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/javascripts/jQuery-2.1.4.min.js"></script>
+<script>
+	var target = [
+		'https://union-click.jd.com/jdc?d=GpEvtJ',
+		'https://item.jd.com/15234043476.html',
+		'https://item.jd.com/10424718491.html',
+		'https://item.jd.com/12610152511.html',
+		'https://www.baidu.com'
+	];
+
+	var jdUrl = [
+		'https://union-click.jd.com/jdc?d=l6TIzv',
+		'https://union-click.jd.com/jdc?d=ctUrJU',
+		'https://union-click.jd.com/jdc?d=TIUH4r',
+		'https://union-click.jd.com/jdc?d=QfyIT7',
+		'https://union-click.jd.com/jdc?d=XXAe2y',
+		'https://union-click.jd.com/jdc?d=4tMfaC',
+		'https://union-click.jd.com/jdc?d=H0KAEm',
+		'https://union-click.jd.com/jdc?d=4bf8mv',
+		'https://union-click.jd.com/jdc?d=1MW05Z',
+		'https://union-click.jd.com/jdc?d=klhuUI',
+		'https://union-click.jd.com/jdc?d=sAjBiH',
+		'https://union-click.jd.com/jdc?d=4kpYV0',
+		'https://union-click.jd.com/jdc?d=1o4xfp',
+		'https://union-click.jd.com/jdc?d=Dg1uEq',
+		'https://union-click.jd.com/jdc?d=80afUv',
+		'https://union-click.jd.com/jdc?d=G0QIm8',
+		'https://union-click.jd.com/jdc?d=L1EQi8',
+		'https://union-click.jd.com/jdc?d=tUm6TO',
+		'https://union-click.jd.com/jdc?d=Xn9joW',
+		'https://union-click.jd.com/jdc?d=JXYapd',
+		'https://union-click.jd.com/jdc?d=gVasNH',
+		'https://union-click.jd.com/jdc?d=3HCLGd',
+		'https://union-click.jd.com/jdc?d=EM88J0',
+		'https://union-click.jd.com/jdc?d=hBcfwQ',
+		'https://union-click.jd.com/jdc?d=sbscB2',
+		'https://union-click.jd.com/jdc?d=ezL2YF',
+		'https://union-click.jd.com/jdc?d=EtSltD',
+		'https://union-click.jd.com/jdc?d=WbBtao',
+		'https://union-click.jd.com/jdc?d=RaRL7b',
+		'https://union-click.jd.com/jdc?d=EuOaKY',
+		'https://union-click.jd.com/jdc?d=AfT3Wc',
+		'https://union-click.jd.com/jdc?d=aYVtsQ',
+		'https://union-click.jd.com/jdc?d=ph5J2F',
+		'https://union-click.jd.com/jdc?d=4owFTX',
+		'https://union-click.jd.com/jdc?d=jl5R7w',
+		'https://union-click.jd.com/jdc?d=zhI3HS',
+		'https://union-click.jd.com/jdc?d=8EW96v',
+		'https://union-click.jd.com/jdc?d=6AJihx',
+		'https://union-click.jd.com/jdc?d=wnJzTI',
+		'https://union-click.jd.com/jdc?d=1ikFVT',
+		'https://union-click.jd.com/jdc?d=cIqInj',
+		'https://union-click.jd.com/jdc?d=ybePs8',
+		'https://union-click.jd.com/jdc?d=ewJEM5',
+		'https://union-click.jd.com/jdc?d=6zU7Cx',
+		'https://union-click.jd.com/jdc?d=Iov1gC',
+		'https://union-click.jd.com/jdc?d=t941Hz',
+		'https://union-click.jd.com/jdc?d=RYsYC9',
+		'https://union-click.jd.com/jdc?d=w5NWV2',
+		'https://union-click.jd.com/jdc?d=WHnnJJ'
+	];
+
+	$('#btn').click(function() {
+		/*$.ajax({
+			// url: 'http://10.4.72.82:3000/imgs?t=' + (+new Date()),
+			url: 'http://10.64.78.86:3000/imgs?t=' + (+new Date()),
+			type: 'POST',
+			data: {
+				target: JSON.stringify(target)
+			},
+			success: function(data) {
+				console.log(data);
+			},
+			error: function() {
+				console.log('error')
+			}
+		})*/
+		// for(var i = 0; i < jdUrl.length; i++) {
+			$.ajax({
+				// url: 'http://118.145.5.140:3000/img?t=' + (+new Date()),
+				url: '/jd/img?t=' + (+new Date()),
+				type: 'POST',
+				data: {
+					// target: 'http://www.baidu.com'
+					target: 'https://union-click.jd.com/jdc?d=GpEvtJ'
+					// target: 'https://union-click.jd.com/jdc?d=0inybn'
+					// target: 'https://union-click.jd.com/jdc?d=zd2gLb'
+					// target: 'https://union-click.jd.com/jdc?d=BHIhjk'
+				},
+				success: function(data) {
+					console.log(data);
+				},
+				error: function() {
+					console.log('error')
+				}
+			})
+		// }
+		
+	});
+
+</script>
+</body>
+</html>

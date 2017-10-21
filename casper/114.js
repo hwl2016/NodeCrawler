@@ -28,7 +28,7 @@ var casper = require('casper').create({
     ]
 });
 
-phantom.outputEncoding="gb2312";
+// phantom.outputEncoding="gb2312";
 
 var url = casper.cli.get(0);    // 通过命令行来接受参数  抓取的页面url
 var username = casper.cli.get(1);    // 通过命令行来接受参数  登陆用户名
@@ -70,7 +70,6 @@ casper.then(function() {
             // 进入科室的详情页面
             this.open(jumpURL).then(function() {
                 if(this.exists('.kfyuks_ks_content')) {
-                    // var jumpURL = this.evaluate(getDeptUrl, department);  // 获取医院详情页面的链接
                     var jumpURL2 = this.evaluate(getJumpURL, 'a.kfyuks_islogin', department);  // 获取医院详情页面的链接
                     if(jumpURL2) {
                         // 进入预约操作页面
@@ -87,13 +86,17 @@ casper.then(function() {
 
                                     /*if(jumpToDoctorUrl.indexOf('http') != -1) {
                                         // 进入预约医生的页面
-                                        this.open(jumpToDoctorUrl, {
+                                        this.thenOpen(jumpToDoctorUrl, {
                                             method: 'get',
                                             headers: {
                                                 'Upgrade-Insecure-Requests': 1,
                                                 'Referer': ref    // 必须设置referer的请求头  很重要！！！
                                             }
                                         }).then(function() {
+
+                                            this.echo('success|href:::'+ jumpToDoctorUrl + '|');
+                                            this.capture('download/114/' + (+new Date()) + '.png');
+                                            return
 
                                             // 点击发送验证码
                                             this.mouse.click('#btnSendCodeOrder');
@@ -137,8 +140,6 @@ casper.then(function() {
                                         this.echo('failed|' + jumpToDoctorUrl + '|');
                                     }*/
 
-
-
                                     // 可能没有 ksorder_dr1_syhy
                                     this.waitForSelector('.ksorder_dr1_syhy', function(){   // 等待"预约挂号"按钮的出现 ksorder_dr1_syhy
                                         var jUrl = this.evaluate(function() {
@@ -146,13 +147,86 @@ casper.then(function() {
                                             var hh = link.attr('href');
                                             link.click();
                                             return hh;
-                                        })
-                                        this.waitForSelector('#btnSendCodeOrder', function() {
-                                            // 点击发送验证码
-                                            // this.mouse.click('#btnSendCodeOrder');
-                                            this.echo('success|href:::' + jUrl + '|');
-                                            this.capture('download/114/' + (+new Date()) + '.png');
                                         });
+
+                                        if(jumpToDoctorUrl.indexOf('http') != -1) {
+
+                                            /*Accept:text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*!/!*;q=0.8
+                                             Accept-Encoding:gzip, deflate, sdch
+                                             Accept-Language:zh-CN,zh;q=0.8
+                                             Connection:keep-alive
+                                             Cookie:SESSION_COOKIE=3cab1829cea361dbceb97f7e; __guid=209865491.3396663288048206300.1508144439143.2546; JSESSIONID=A9EC5A5B007EFE205A3365EAB8FFD351; monitor_count=507; Hm_lvt_bc7eaca5ef5a22b54dd6ca44a23988fa=1508144442; Hm_lpvt_bc7eaca5ef5a22b54dd6ca44a23988fa=1508568942
+                                             Host:www.bjguahao.gov.cn
+                                             Referer:http://www.bjguahao.gov.cn/dpt/appoint/142-200039544.htm
+                                             Upgrade-Insecure-Requests:1
+                                             User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36*/
+
+                                            // var cookie = 'SESSION_COOKIE=3cab1829cea361dbceb97f7e; __guid=209865491.3396663288048206300.1508144439143.2546; JSESSIONID=A9EC5A5B007EFE205A3365EAB8FFD351; monitor_count=539; Hm_lvt_bc7eaca5ef5a22b54dd6ca44a23988fa=1508144442; Hm_lpvt_bc7eaca5ef5a22b54dd6ca44a23988fa=' + (+new Date()).toString().slice(0, -3);
+                                            // var cookie = this.evaluate(function() {
+                                            //     return document.cookie;
+                                            // })
+
+                                            // this.capture('download/114/' + (+new Date()) + '.png');
+
+                                            // 进入预约医生的页面
+                                            this.thenOpen(jumpToDoctorUrl, {
+                                                method: 'get',
+                                                headers: {
+                                                     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                                                     'Accept-Language':'zh-CN,zh;q=0.8',
+                                                     'Connection':'keep-alive',
+                                                     // 'Cookie': cookie,
+                                                     'Host':'www.bjguahao.gov.cn',
+                                                     'Referer': ref,
+                                                     'Upgrade-Insecure-Requests':1,
+                                                }
+                                            }).then(function() {
+
+                                                // this.echo('success|haha..:::>>>>>>>>>>|');
+                                                // this.capture('download/114/' + (+new Date()) + '.png');
+                                                // return
+
+                                                // 点击发送验证码
+                                                this.mouse.click('#btnSendCodeOrder');
+
+                                                this.waitForAlert(function(response) {    // 等待弹框出现  casperjs会自动将alert弹框关闭
+                                                    this.wait(1000);
+                                                }).then(function() {
+                                                    var yzm = '';
+
+                                                    while(true) {
+                                                        sleep(1000);    // 每隔1秒请求一次验证码
+                                                        yzm = this.evaluate(getYZM, username);
+                                                        if(yzm) {
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    // 填写手机验证码等相关信息
+                                                    if(yzm) {
+                                                        this.evaluate(function(jzk, ybk, bxlx, yzm) {
+                                                            $('#Rese_db_dl_jzk').val(jzk); // 填写就诊卡
+                                                            $('#Rese_db_dl_ybk').val(ybk); // 填写医保卡
+                                                            $('.Rese_db_dl_select option').eq(bxlx).get(0).selected = true;    //  选择报销类型
+                                                            $('#Rese_db_dl_dxyzid').val(yzm); // 填写手机验证码
+                                                        }, jzk, ybk, bxlx, yzm);
+
+                                                        // 点击预约
+                                                        this.mouse.click('#Rese_db_qryy_btn');
+                                                        this.wait(200);
+
+                                                        this.then(function() {
+                                                            this.echo('success|');
+                                                            // this.capture('download/114/' + (+new Date()) + '.png');
+                                                        })
+                                                    }else {
+                                                        this.echo('failed|手机验证码获取失败|');
+                                                    }
+                                                })
+                                            })
+                                        }else {
+                                            this.echo('failed|' + jumpToDoctorUrl + '|');
+                                        }
                                     })
                                 }else {
                                     this.echo('failed|该时间段不能预约或者约满，请选择其他时间预约|');
@@ -162,7 +236,7 @@ casper.then(function() {
                             }
                         })
                     }else { // 如果该页没有查到医院的话 
-                        this.echo('failed|你所预约的医院科室不存在|');
+                        this.echo('failed|你所预约的医院科室：' + department + '不存在|');
                     }
                 }
             })
@@ -195,7 +269,7 @@ function getJumpURL(selector, name) {
     if(name) {
         for(var i = 0; i < links.length; i ++ ) {
             var link = links[i];
-            if(link.innerHTML.trim().indexOf(name) != -1) {
+            if(link.innerHTML.trim() == name) {
                 url = window.location.origin + link.getAttribute('href');
                 break;
             }
@@ -205,7 +279,6 @@ function getJumpURL(selector, name) {
         url = window.location.origin + link.getAttribute('href');
     }
     return url;
-    
 }
 
 // 获取值班医生的信息  发送ajax

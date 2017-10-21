@@ -22,6 +22,8 @@
 					<button id="btn_4" class="btn btn-primary">京东识别图形验证码</button>
 					<button id="btn_5" class="btn btn-primary">测试短信验证码</button>
 				</div>
+
+				<div><input type="file" name="upload" id="upload"></div>
 			</div>
 		</div>
 	</div>
@@ -72,12 +74,17 @@ $(function() {
 		// length: 验证码长度
 		// appkey: 京东万象的appkey
 
+        var data = new FormData();
+        var upload = $('#upload')[0].files
+        data.append('body', upload);
+
         $.ajax({
             url: 'https://way.jd.com/pengyun/seemmark?codeType=1001&length=4&appkey=73bd99c79e4c38168cf1a7e0bcfddbbc',
             type: 'post',
-            data: {
-                body: yzm  //Image类型
-            },
+            cache: false,
+            contentType: false,    //不可缺
+            processData: false,    //不可缺
+            data: data,
             success: function(d) {
                 console.log(d);
                 if(d.code == '10000') {

@@ -77,24 +77,24 @@
 
     $('#btn_2').click(function() {
         var phones = ['17085100969', '17085100971', '17085100972'];
-		var phone = phones[1];
-		var password = 'w666666';
+        var phone = phones[1];
+        var password = 'w666666';
 
-		// http://dwz.cn/6GpRax
+        // http://dwz.cn/6GpRax
 
         $.ajax({
             url: '/jd/tickets?t=' + (+new Date()),
             type: 'POST',
             data: {
                 username: phone,
-				password: password,
+                password: password,
                 crawlerUrl: 'http://t.cn/ROdFlbV'
             },
             success: function(res) {
                 console.log(res);
-				if(res.code == 200) {
-				    $('#yzm').attr('src', res.data.yzm)
-				}
+                if(res.code == 200) {
+                    $('#yzm').attr('src', res.data.yzm)
+                }
             },
             error: function() {
                 console.log('error')

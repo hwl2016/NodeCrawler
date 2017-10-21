@@ -184,7 +184,7 @@ $(function() {
 		// 	return false;
 		// }
 
-		// 预约时间 格式 x-yyyy-mm-dd  x:代表上午（1）、下午（2）、晚上（3）， yyyy:年  mm:月 dd：日
+		// 预约时间 格式 x_yyyy-mm-dd  x:代表上午（1）、下午（2）、晚上（3）， yyyy:年  mm:月 dd：日
 		var at = yyTime.split(' ');
 		var prefix = at[1] == '上午' ? 1 : ( at[1] == '下午' ? 2 : 3 );
 		var appointmentTime = prefix + '_' + at[0];
@@ -209,7 +209,7 @@ $(function() {
 		// return false;
 
 		$.ajax({
-			// url: 'http://10.64.78.86:3000/guahao?t=' + (+new Date()),
+			// url: 'http://118.145.5.140:3001/fun/guahao?t=' + (+new Date()),
 			url: '/fun/guahao?t=' + (+new Date()),
 			type: 'post',
 			data: data,

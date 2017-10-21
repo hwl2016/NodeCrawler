@@ -118,7 +118,10 @@ router.post('/tickets', function(req, res, next) {
 
         if(err || stderr) {
             logger.error('ERROR >>>>>>>>>>> node execute err: ' + err);
-            logger.error('ERROR >>>>>>>>>>> casper execute stderr: ' + stderr);
+            logger.error('ERROR >>>>>>>>>>> casper execute stderr: ' + stderr);res.json({
+                code: 500,
+                msg: 'node or casper 执行报错'
+            });
             return
         }
         if(stdout) {

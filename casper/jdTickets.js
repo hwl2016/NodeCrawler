@@ -34,7 +34,7 @@ var url = casper.cli.get(0);    // 要抢的京东链接
 var username = casper.cli.get(1);    // 用户手机账号
 var password = casper.cli.get(2);    // 京东密码
 
-var baseUrl = 'http://10.4.72.82:3000/';
+var baseUrl = 'http://10.4.72.82:3001/';
 
 // 打开页面 并登陆
 casper.start(url)
@@ -61,7 +61,7 @@ casper.then(function() {
 
 casper.then(function() {
     if(this.exists('#validateCode')) {
-        var yzm = 'yzm_' + (+new Date()) + '.jpg';
+        /*var yzm = 'yzm_' + (+new Date()) + '.jpg';
         var saveTo = 'download/yzmImg/' + yzm;
 
         // 只截取验证码
@@ -74,7 +74,16 @@ casper.then(function() {
 
         var yzmUrl = baseUrl + saveTo;  // 识别图形验证码
 
-        this.echo('success|yzm:' + yzmUrl + '|');
+        this.echo('success|yzm:' + yzmUrl + '|');*/
+
+        var yzmBase64 = this.captureBase64('png', {
+            top: 210,
+            left: 260,
+            width: 107,
+            height: 42
+        })
+
+        this.echo('success|yzm:' + yzmBase64 + '|');
 
         // 填写验证码
         // this.evaluate(function(code) {

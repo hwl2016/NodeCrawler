@@ -1142,8 +1142,6 @@
         timeWheels: 'HHii',
         yearText: '年',
         ampmText: '上午/下午',
-        timeFormat: 'A',
-        timeWheels: 'A'
     });
     //得到具体的日期对象
     (function ($) {

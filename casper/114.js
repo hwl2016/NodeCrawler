@@ -82,7 +82,8 @@ casper.then(function() {
                                     var ref = this.getCurrentUrl(); // 获取当前url
 
                                     // 以下方式（主动发ajax  拼接链接跳转）必须设置referer的请求头  挂号平台做了防止黄牛的操作
-                                    var jumpToDoctorUrl = this.evaluate(getPartDutyUrl, appointmentTime);
+                                    var at = kyy.split('_')
+                                    var jumpToDoctorUrl = this.evaluate(getPartDutyUrl, appointmentTime, at[1]);
 
                                     /*if(jumpToDoctorUrl.indexOf('http') != -1) {
                                         // 进入预约医生的页面
@@ -142,6 +143,13 @@ casper.then(function() {
 
                                     // 可能没有 ksorder_dr1_syhy
                                     this.waitForSelector('.ksorder_dr1_syhy', function(){   // 等待"预约挂号"按钮的出现 ksorder_dr1_syhy
+
+                                        var cookie = this.evaluate(function () {
+                                            return document.cookie;
+                                        });
+                                        this.echo('success|cookie..:::>>>>>>>>>>' + cookie + '|');
+                                        this.capture('download/114/' + (+new Date()) + '.png');
+
                                         var jUrl = this.evaluate(function() {
                                             var link = $('a.ksorder_dr1_syhy').eq(0);
                                             var hh = link.attr('href');
@@ -175,14 +183,16 @@ casper.then(function() {
                                                      'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                                                      'Accept-Language':'zh-CN,zh;q=0.8',
                                                      'Connection':'keep-alive',
-                                                     // 'Cookie': cookie,
+                                                     'Cookie': cookie,
                                                      'Host':'www.bjguahao.gov.cn',
                                                      'Referer': ref,
                                                      'Upgrade-Insecure-Requests':1,
                                                 }
                                             }).then(function() {
-
-                                                // this.echo('success|haha..:::>>>>>>>>>>|');
+                                                // var cookie = this.evaluate(function () {
+                                                //     return document.cookie;
+                                                // });
+                                                // this.echo('success|cookie..:::>>>>>>>>>>' + cookie + '|');
                                                 // this.capture('download/114/' + (+new Date()) + '.png');
                                                 // return
 
@@ -282,7 +292,7 @@ function getJumpURL(selector, name) {
 }
 
 // 获取值班医生的信息  发送ajax
-function getPartDutyUrl(time) {
+function getPartDutyUrl(dutyDate, dutyCode) {
     var href = '';
     var loc = window.location.href;
     var pos1 = loc.lastIndexOf('\/') + 1;
@@ -292,9 +302,9 @@ function getPartDutyUrl(time) {
     var hospitalId = s[0];
     var departmentId = s[1];
 
-    var t = time.split('_');
-    var dutyCode = t[0];
-    var dutyDate = t[1];
+    // var t = time.split('_');
+    // var dutyCode = t[0];
+    // var dutyDate = t[1];
 
     $.ajax({
         url: 'http://www.bjguahao.gov.cn/dpt/partduty.htm',

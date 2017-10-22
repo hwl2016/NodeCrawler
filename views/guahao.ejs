@@ -151,7 +151,7 @@ $(function() {
 		startYear: currYear - 1, // 开始年份
 		ampmText: '时段',
 		timeFormat: 'A',
-        timeWheels: 'A'
+//        timeWheels: 'A'
     };
     var optDateTime = $.extend(opt['datetime'], opt['_default']); // 将自定义的属性放进去
     $startTime.mobiscroll(optDateTime).datetime(optDateTime);
@@ -188,17 +188,18 @@ $(function() {
 		var at = yyTime.split(' ');
 		var prefix = at[1] == '上午' ? 1 : ( at[1] == '下午' ? 2 : 3 );
 		var appointmentTime = prefix + '_' + at[0];
+        appointmentTime = at[0];
 
 		var jzk = $('#jzk').val() || '';
 		var ybk = $('#ybk').val() || '';
 		var bxlx = $('#bxlx').val() || '0';
 
 		var data = {
-			username: username || '17080312246',
+			username: username || '17080312184',	// 17080312246
 			password: password || 'xunbao123',
 			hospitalName: hospitalName || '北京大学第三医院',
 			department: department || '美容成形',
-			appointmentTime: yyTime ? appointmentTime : '1_2017-10-26',
+			appointmentTime: yyTime ? appointmentTime : '2017-10-26',
 			jzk: jzk,
 			ybk: ybk,
 			bxlx: bxlx

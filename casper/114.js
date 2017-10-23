@@ -1,11 +1,8 @@
-// var __clientutils__ = require('clientutils').create();
-// var __utils__ = require('utils');
-
 // 初始化casperjs
 var casper = require('casper').create({
 	verbose: true,
     logLevel: 'error',
-    waitTimeout: 20000,
+    waitTimeout: 30000,
 	pageSettings: {
         // 'loadImages':  false,
 		'userAgent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36'
@@ -17,16 +14,22 @@ var casper = require('casper').create({
     },
     exitOnError: false,
     silentErrors: true,
-    onError: function (e) {
-        console.log(e);
+    onError: function (cas, msg) {
+        console.log('onError: ' + msg);
+    },
+    onDie: function (cas, msg) {
+        console.log('onDie: ' + msg);
     },
     onAlert: function (msg) {//alert的回调函数 
         // console.log("onAlert===========================msg:" + msg);    
     }, 
-    clientScripts: [
-		"./public/javascripts/jQuery-2.1.4.min.js"
-    ]
+    // clientScripts: [
+		// "./public/javascripts/jQuery-2.1.4.min.js"
+    // ]
 });
+
+// var __clientutils__ = require('clientutils').create();
+// var __utils__ = require('utils');
 
 // phantom.outputEncoding="gb2312";
 
@@ -43,6 +46,8 @@ var info = yyInfo.split(',');
 var jzk = info[0].split(':')[1];
 var ybk = info[1].split(':')[1];
 var bxlx = parseInt(info[2].split(':')[1]);
+
+var interTime = 1.5 * 60 * 1000; // 验证码时间间隔不能超过 1.5 min
 
 // 打开页面 并登陆
 casper.start(url, function() {
@@ -83,7 +88,39 @@ casper.then(function() {
 
                                     // 以下方式（主动发ajax  拼接链接跳转）必须设置referer的请求头  挂号平台做了防止黄牛的操作
                                     var at = kyy.split('_')
-                                    var jumpToDoctorUrl = this.evaluate(getPartDutyUrl, appointmentTime, at[1]);
+                                    // var jumpToDoctorUrl = this.evaluate(getPartDutyUrl, appointmentTime, at[1]);
+                                    // 获取预约发送验证码页面的链接
+                                    var wsurl = 'http://www.bjguahao.gov.cn/dpt/partduty.htm';
+                                    var jumpToDoctorUrl = this.evaluate(function(wsurl, dutyDate, dutyCode) {
+                                        var loc = window.location.href;
+                                        var pos1 = loc.lastIndexOf('\/') + 1;
+                                        var pos2 = loc.lastIndexOf('.');
+
+                                        var s = loc.slice(pos1, pos2).split('-');
+                                        var hospitalId = s[0];
+                                        var departmentId = s[1];
+
+                                        var d = {
+                                            hospitalId: hospitalId,
+                                            departmentId: departmentId,
+                                            dutyCode: dutyCode,
+                                            dutyDate: dutyDate,
+                                            isAjax: true
+                                        };
+
+                                        var res = __utils__.sendAJAX(wsurl, 'POST', d, false);
+                                        var href = '';
+
+                                        res = typeof res == 'string' ? JSON.parse(res) : res;   // 返回的结果是字符串
+                                        if(res.code == 200) {
+                                            var r = res.data[0];    // 默认选第一个医生
+                                            href = window.location.origin + '/order/confirm/' + r.hospitalId +
+                                                '-' + r.departmentId + '-' + r.doctorId + '-' + r.dutySourceId + '.htm';
+                                        }else {
+                                            href = 'ajax success, but 没有医生的数据';
+                                        }
+                                        return href;
+                                    }, wsurl, appointmentTime, at[1]);
 
                                     /*if(jumpToDoctorUrl.indexOf('http') != -1) {
                                         // 进入预约医生的页面
@@ -143,19 +180,14 @@ casper.then(function() {
 
                                     // 可能没有 ksorder_dr1_syhy
                                     this.waitForSelector('.ksorder_dr1_syhy', function(){   // 等待"预约挂号"按钮的出现 ksorder_dr1_syhy
-
+                                        this.wait(1000);
+                                    });
+                                    this.then(function() {
                                         var cookie = this.evaluate(function () {
                                             return document.cookie;
                                         });
-                                        this.echo('success|cookie..:::>>>>>>>>>>' + cookie + '|');
-                                        this.capture('download/114/' + (+new Date()) + '.png');
-
-                                        var jUrl = this.evaluate(function() {
-                                            var link = $('a.ksorder_dr1_syhy').eq(0);
-                                            var hh = link.attr('href');
-                                            link.click();
-                                            return hh;
-                                        });
+                                        // this.echo('success|cookie..:::>>>>>>>>>>' + cookie + '|');
+                                        // this.capture('download/114/' + (+new Date()) + '.png');
 
                                         if(jumpToDoctorUrl.indexOf('http') != -1) {
 
@@ -169,44 +201,58 @@ casper.then(function() {
                                              Upgrade-Insecure-Requests:1
                                              User-Agent:Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36*/
 
-                                            // var cookie = 'SESSION_COOKIE=3cab1829cea361dbceb97f7e; __guid=209865491.3396663288048206300.1508144439143.2546; JSESSIONID=A9EC5A5B007EFE205A3365EAB8FFD351; monitor_count=539; Hm_lvt_bc7eaca5ef5a22b54dd6ca44a23988fa=1508144442; Hm_lpvt_bc7eaca5ef5a22b54dd6ca44a23988fa=' + (+new Date()).toString().slice(0, -3);
-                                            // var cookie = this.evaluate(function() {
-                                            //     return document.cookie;
-                                            // })
-
-                                            // this.capture('download/114/' + (+new Date()) + '.png');
-
                                             // 进入预约医生的页面
                                             this.thenOpen(jumpToDoctorUrl, {
                                                 method: 'get',
                                                 headers: {
-                                                     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                                                     'Accept-Language':'zh-CN,zh;q=0.8',
-                                                     'Connection':'keep-alive',
-                                                     'Cookie': cookie,
-                                                     'Host':'www.bjguahao.gov.cn',
-                                                     'Referer': ref,
-                                                     'Upgrade-Insecure-Requests':1,
+                                                    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                                                    'Accept-Language':'zh-CN,zh;q=0.8',
+                                                    'Connection':'keep-alive',
+                                                    'Cookie': cookie,
+                                                    'Host':'www.bjguahao.gov.cn',
+                                                    'Referer': ref,
+                                                    'Upgrade-Insecure-Requests':1,
                                                 }
                                             }).then(function() {
-                                                // var cookie = this.evaluate(function () {
-                                                //     return document.cookie;
-                                                // });
-                                                // this.echo('success|cookie..:::>>>>>>>>>>' + cookie + '|');
-                                                // this.capture('download/114/' + (+new Date()) + '.png');
-                                                // return
-
-                                                // 点击发送验证码
-                                                this.mouse.click('#btnSendCodeOrder');
-
-                                                this.waitForAlert(function(response) {    // 等待弹框出现  casperjs会自动将alert弹框关闭
+                                                this.waitForSelector('.Rese_db_dl_sjyzdjfs', function() {   //  需要等待
                                                     this.wait(1000);
-                                                }).then(function() {
+                                                });
+                                                this.click('.Rese_db_dl_sjyzdjfs', function() { // 点击发送验证码  需要等待
+                                                    this.wait(1000);
+                                                });
+
+                                                this.then(function() {
+                                                    // this.echo('success|cookie..:::>>>>>>>>>>' + cookie + '|');
+                                                    // this.capture('download/114/' + (+new Date()) + '.png');
+                                                    // return;
+
                                                     var yzm = '';
 
                                                     while(true) {
                                                         sleep(1000);    // 每隔1秒请求一次验证码
-                                                        yzm = this.evaluate(getYZM, username);
+                                                        // yzm = this.evaluate(getYZM, username);
+                                                        yzm = this.evaluate(function(phone, interTime) {
+                                                            var code = '';
+                                                            var hurl = 'http://xlyqq.xilexuan.com/scriptmanager/cardPoolAction.do?method=getSms&phone=' + phone;
+                                                            var d =  __utils__.sendAJAX(hurl, 'GET', null, false);
+                                                            d = typeof d == 'string' ? JSON.parse(d) : d;
+                                                            if(d.r == 200) {
+                                                                for(var i = 0; i < d.data.length; i ++) {
+                                                                    var item = d.data[i];
+                                                                    var msg = item.message;
+                                                                    if(msg.indexOf('北京市预约挂号统一平台') != -1) {
+                                                                        var diffTime = Math.abs(new Date() - item.sendTime)
+                                                                        // 验证码时间间隔不能超过2min 否则视为短信没有发出
+                                                                        if(diffTime < interTime) {
+                                                                            code = msg.slice(-7,-1);
+                                                                        }
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            return code;
+                                                        }, username, interTime);
+
                                                         if(yzm) {
                                                             break;
                                                         }
@@ -215,19 +261,19 @@ casper.then(function() {
                                                     // 填写手机验证码等相关信息
                                                     if(yzm) {
                                                         this.evaluate(function(jzk, ybk, bxlx, yzm) {
-                                                            $('#Rese_db_dl_jzk').val(jzk); // 填写就诊卡
-                                                            $('#Rese_db_dl_ybk').val(ybk); // 填写医保卡
-                                                            $('.Rese_db_dl_select option').eq(bxlx).get(0).selected = true;    //  选择报销类型
-                                                            $('#Rese_db_dl_dxyzid').val(yzm); // 填写手机验证码
+                                                            document.querySelector('#Rese_db_dl_jzk').value = jzk; // 填写就诊卡
+                                                            document.querySelector('#Rese_db_dl_ybk').value = ybk; // 填写医保卡
+                                                            document.querySelectorAll('.Rese_db_dl_select option')[bxlx].selected = true;    //  选择报销类型
+                                                            document.querySelector('#Rese_db_dl_dxyzid').value = yzm; // 填写手机验证码
                                                         }, jzk, ybk, bxlx, yzm);
 
                                                         // 点击预约
-                                                        this.mouse.click('#Rese_db_qryy_btn');
-                                                        this.wait(200);
+                                                        this.click('#Rese_db_qryy_btn');
+                                                        this.wait(1000);
 
                                                         this.then(function() {
                                                             this.echo('success|');
-                                                            // this.capture('download/114/' + (+new Date()) + '.png');
+                                                            this.capture('download/114/' + (+new Date()) + '.png');
                                                         })
                                                     }else {
                                                         this.echo('failed|手机验证码获取失败|');
@@ -292,7 +338,7 @@ function getJumpURL(selector, name) {
 }
 
 // 获取值班医生的信息  发送ajax
-function getPartDutyUrl(dutyDate, dutyCode) {
+/*function getPartDutyUrl(dutyDate, dutyCode) {
     var href = '';
     var loc = window.location.href;
     var pos1 = loc.lastIndexOf('\/') + 1;
@@ -334,7 +380,7 @@ function getPartDutyUrl(dutyDate, dutyCode) {
     })
 
     return href;
-}
+}*/
 
 // 进入预约医生的页面
 function enterDoctor(url) {
@@ -344,21 +390,22 @@ function enterDoctor(url) {
 // 查找符合条件的预约按钮
 function getAppointmentBtn(time) {
     var btn = null;
-    $('.ksorder_kyy').each(function() {
-        var $this = $(this);
-        var hv = $this.find('input[type="hidden"]').val();
+    var ksorder_kyy = document.querySelectorAll('.ksorder_kyy');
+    for(var i=0; i < ksorder_kyy.length; i++) {
+        var _this = ksorder_kyy[i];
+        var hv = _this.querySelector('input[type="hidden"]').value;
+
         if(hv.indexOf(time) != -1) {
             btn = hv;
-            $this.get(0).click();
-            // btn = $this.get(0);
-            return false;
+            _this.click();
+            break;
         }
-    })
+    }
     return btn;
 }
 
 // 获取手机验证码
-function getYZM(phone) {
+/*function getYZM(phone) {
     var code = '';
     var interTime = 2 * 60 * 1000; // 验证码时间间隔不能超过2min
     $.ajax({
@@ -392,18 +439,5 @@ function getYZM(phone) {
         }
     })
     return code;
-}
+}*/
 
-function getQuery(key, url) {
-    var url = url || window.location.href + '';
-    if (url.indexOf('#') !== -1)
-        url = url.substring(0, url.indexOf('#'));
-    var rts = [], rt;
-    var queryReg = new RegExp('(^|\\?|&)' + key + '=([^&]*)(?=&|#|$)', 'g');
-    while (( rt = queryReg.exec(url) ) != null) {
-        rts.push(decodeURIComponent(rt[ 2 ]));
-    }
-    if (rts.length == 0) return null;
-    if (rts.length == 1) return rts[ 0 ];
-    return rts;
-}
